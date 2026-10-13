@@ -145,8 +145,10 @@ Or from npm/GitHub if published:
 dsh plugin --profile <your-profile> add dsh-session-clock
 ```
 
-Restart DSH once after installing (the profile manifest change gets reconciled by the
-host's built-in HMR, but a first load is worth confirming). Check `/session-clock`.
+No restart is **usually** needed: the host's built-in HMR notices the profile manifest
+change and reconciles automatically. Check `/session-clock` — `enabled: true` with
+`ready: true` means it loaded. If the status route 404s, that reconcile did not take,
+so restart DSH once.
 
 ### Coexisting with time-context
 
