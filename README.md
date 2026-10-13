@@ -3,7 +3,15 @@
 > **给 DeepSeek Harness 的「会话时钟」插件**——按会话授时，并给出跨轮、跨会话的空闲间隔。
 > 定位是宿主内置 [`@deepseek-ai/dsh-time-context`](https://www.npmjs.com/package/@deepseek-ai/dsh-time-context) 的**补充插件**，不是替代品。
 
+[English](README.en.md) | 中文
+
 ![status](https://img.shields.io/badge/DEEPSEEK%20HARNESS-plugin-4B6BFB) ![license](https://img.shields.io/badge/license-MIT-green) ![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)
+
+| |
+|---|
+| [`dsh-hot-reloader`](https://github.com/xfgil/dsh-hot-reloader) — 改完插件源码不用重启 |
+| **`dsh-session-clock`** — 按会话授时与空闲间隔（本仓库） |
+| [`dsh-onebot-guard`](https://github.com/xfgil/dsh-onebot-guard) — QQ 通道出站闸 |
 
 ---
 
@@ -116,6 +124,56 @@ DSH 重启后内存里的会话对象是新的，但文件里的间隔基线还�
 `/session-clock` 里的 `lastDecision` 会告诉你**上一次为什么没注入**（例如
 `mode=supplement 只在首步注入`）——这个插件每轮只补一条，错过首步就整轮静默，
 没有这个字段会很难区分「没轮到」和「坏了」。
+
+---
+
+## 环境要求
+
+### 前置插件
+
+| 插件 | 版本 | 说明 |
+|---|---|---|
+| [`@deepseek-ai/dsh-time-context`](https://www.npmjs.com/package/@deepseek-ai/dsh-time-context) | **0.2.0-rc.2** | 宿主内置。**必须存在但不要改动它**——本插件默认 `supplement` 模式与它并存（见「与 time-context 共存」） |
+
+`time-context` 由 `@deepseek-ai/dsh-base` 组合包提供，你不需要单独安装。
+本插件**不 import 它**，只在语义上补它结构上给不出的维度。
+
+> 注意：`dsh-experimental-schedule-bundle` 也会随包插入同一个 `dsh-time-context`。
+> profile patch 里请保持**单点挂载**，插第二份会导致每 turn 首步注入两条逐字相同的消息。
+
+### DSH 宿主
+
+| 项 | 版本 |
+|---|---|
+| DSH | **0.2.0-rc.2**（本插件的开发与实测版本） |
+| Electron | 44.0.0 |
+| Node（宿主内嵌） | 24.18.1 |
+| V8 | 15.2 |
+| Cordis | 4.0.4 |
+
+### 依赖的宿主服务与接口
+
+| 依赖 | 必需 | 说明 |
+|---|---|---|
+| `ctx.sessions` | ✅ | `inject = ['sessions']`。取当前会话、读事件流 |
+| `ctx.sessions.snapshotEvents()` | ✅ | 重建「距上次对话多久」的基线 |
+| `ctx.on('session/event')` | ✅ | 追踪每条消息的 `time` 字段 |
+| `@deepseek-ai/dsh-llm` 的 `createUserMessage` | ⭕ 可选 | **受控动态 import**：`try { ... } catch { undefined }`，拿不到就退回本地 `deepFreeze({ id: randomUUID(), role: 'user', ... })` 等价物 |
+| `webServer` | ⭕ 可选 | 没有它插件照常注入，只是看不到 HTTP 观测面 |
+| `ctx.reflect.provide('sessionClock')` | ⭕ 可选 | 已用 try/catch 包裹，宿主没这个服务也不影响 |
+
+**零运行时依赖**：只用 `node:crypto` / `node:fs` / `node:path` / `node:url`，
+外加 `./time.js` 与 `./store.js` 两个自带模块。
+
+### 状态文件
+
+```
+$DSH_HOME/session-clock/activity.json     # 默认；DSH_HOME 缺省时退回 ~/.dsh
+```
+
+- 原子写（tmp + `renameSync`），格式 `{ version: 1, sessions: {...}, global: {...} }`
+- `MAX_RECORDS = 5000`，超出时按 `lastSeenAt` 裁剪最旧的
+- 删掉这个文件 = 清空所有间隔记录（重启后间隔从零开始）
 
 ---
 

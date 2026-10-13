@@ -3,7 +3,15 @@
 > **A "session clock" plugin for DeepSeek Harness** — per-session time injection plus durable idle-gap tracking.
 > A **companion** to the built-in [`@deepseek-ai/dsh-time-context`](https://www.npmjs.com/package/@deepseek-ai/dsh-time-context), not a replacement.
 
+English | [中文](README.md)
+
 ![status](https://img.shields.io/badge/DEEPSEEK%20HARNESS-plugin-4B6BFB) ![license](https://img.shields.io/badge/license-MIT-green) ![node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)
+
+| |
+|---|
+| [`dsh-hot-reloader`](https://github.com/xfgil/dsh-hot-reloader) — edit plugin source without restarting |
+| **`dsh-session-clock`** — per-session clock and idle gaps (this repo) |
+| [`dsh-onebot-guard`](https://github.com/xfgil/dsh-onebot-guard) — QQ channel outbound gate |
 
 ---
 
@@ -130,6 +138,58 @@ gets a 403:
 (e.g. `mode=supplement 只在首步注入`) — this plugin fires once per turn, so missing
 step 1 means a whole silent turn; without that field it is hard to tell "not my turn"
 from "broken."
+
+---
+
+## Requirements
+
+### Prerequisite plugin
+
+| Plugin | Version | Notes |
+|---|---|---|
+| [`@deepseek-ai/dsh-time-context`](https://www.npmjs.com/package/@deepseek-ai/dsh-time-context) | **0.2.0-rc.2** | Built into the host. **Must exist, but do not modify it** — the default `supplement` mode coexists with it (see "Coexisting with time-context") |
+
+`time-context` ships with the `@deepseek-ai/dsh-base` bundle; you do not install it
+separately. This plugin does **not** import it — it only complements, at the semantic
+level, dimensions that `time-context` structurally cannot express.
+
+> Note: `dsh-experimental-schedule-bundle` also pulls in the same `dsh-time-context`.
+> Keep a **single mount point** in your profile patch — a second copy makes every turn's
+> first step inject two byte-identical messages.
+
+### DSH host
+
+| Item | Version |
+|---|---|
+| DSH | **0.2.0-rc.2** (this plugin's development and test baseline) |
+| Electron | 44.0.0 |
+| Node (embedded in host) | 24.18.1 |
+| V8 | 15.2 |
+| Cordis | 4.0.4 |
+
+### Host services and interfaces used
+
+| Dependency | Required | Notes |
+|---|---|---|
+| `ctx.sessions` | ✅ | `inject = ['sessions']`. Gets the current session and reads its event stream |
+| `ctx.sessions.snapshotEvents()` | ✅ | Rebuilds the "how long since the last conversation" baseline |
+| `ctx.on('session/event')` | ✅ | Tracks the `time` field of every message |
+| `createUserMessage` from `@deepseek-ai/dsh-llm` | ⭕ optional | **Guarded dynamic import**: `try { ... } catch { undefined }`; falls back to a local `deepFreeze({ id: randomUUID(), role: 'user', ... })` equivalent |
+| `webServer` | ⭕ optional | Without it the plugin still injects, you just get no HTTP surface |
+| `ctx.reflect.provide('sessionClock')` | ⭕ optional | Wrapped in try/catch; a host lacking this service is fine |
+
+**Zero runtime dependencies**: only `node:crypto` / `node:fs` / `node:path` / `node:url`,
+plus the bundled `./time.js` and `./store.js`.
+
+### State file
+
+```
+$DSH_HOME/session-clock/activity.json     # default; falls back to ~/.dsh when DSH_HOME is unset
+```
+
+- Atomic write (tmp + `renameSync`), shape `{ version: 1, sessions: {...}, global: {...} }`
+- `MAX_RECORDS = 5000`; when exceeded, the oldest by `lastSeenAt` are pruned
+- Deleting this file clears every recorded gap (intervals restart from zero after a restart)
 
 ---
 
