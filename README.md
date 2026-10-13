@@ -131,8 +131,9 @@ dsh plugin --profile <你的profile> add link:/绝对路径/dsh-session-clock
 dsh plugin --profile <你的profile> add dsh-session-clock
 ```
 
-装好后重启一次 DSH 生效（profile 清单变了，宿主的内置 HMR 会自动 reconcile，
-但首次装载建议重启确认）。用 `/session-clock` 看状态。
+装好后**通常无需重启**：宿主内置的 HMR 会监听到 profile 清单变化并自动 reconcile。
+用 `/session-clock` 看状态，`enabled: true` 且 `ready: true` 即为已装载。
+若状态接口 404，说明这次 reconcile 没成功，再重启 DSH 一次。
 
 ### 与 time-context 共存
 
