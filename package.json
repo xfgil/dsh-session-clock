@@ -18,7 +18,8 @@
   "exports": {
     ".": {
       "default": "./lib/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "lib",
