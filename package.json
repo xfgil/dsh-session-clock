@@ -1,0 +1,48 @@
+{
+  "name": "dsh-session-clock",
+  "version": "0.1.0",
+  "description": "给指定会话授时，并给出「距上次对话过去多久」：补上宿主 dsh-time-context 只算「距上一条消息」而无法按会话开关的缺口。Per-session clock injection for DeepSeek Harness with durable idle-gap tracking.",
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "harness",
+    "time",
+    "time-context",
+    "clock",
+    "session",
+    "idle",
+    "plugin"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "default": "./lib/index.js"
+    }
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "author": "xfgil",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xfgil/dsh-session-clock.git"
+  },
+  "homepage": "https://github.com/xfgil/dsh-session-clock#readme",
+  "bugs": {
+    "url": "https://github.com/xfgil/dsh-session-clock/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
