@@ -11,7 +11,7 @@
 |---|
 | [`dsh-hot-reloader`](https://github.com/xfgil/dsh-hot-reloader) — 改完插件源码不用重启 |
 | **`dsh-session-clock`** — 按会话授时与空闲间隔（本仓库） |
-| [`dsh-onebot-guard`](https://github.com/xfgil/dsh-onebot-guard) — QQ 通道出站闸 |
+| [`dsh-onebot-companion`](https://github.com/xfgil/dsh-onebot-companion) — QQ 通道一体化：出站沉默守卫 / 行为规则 / 对话节奏 / 人设 / 语音 |
 
 ---
 
