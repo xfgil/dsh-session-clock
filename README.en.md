@@ -11,6 +11,7 @@ English | [中文](README.md)
 |---|
 | [`dsh-hot-reloader`](https://github.com/xfgil/dsh-hot-reloader) — edit plugin source without restarting |
 | **`dsh-session-clock`** — per-session clock and idle gaps (this repo) |
+| [`dsh-second-opinion`](https://github.com/xfgil/dsh-second-opinion) — hand a stuck problem to another session for a second opinion |
 | [`dsh-onebot-companion`](https://github.com/xfgil/dsh-onebot-companion) — QQ channel all-in-one: outbound gate, rules, rhythm, persona, voice |
 
 ---
