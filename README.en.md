@@ -162,7 +162,7 @@ level, dimensions that `time-context` structurally cannot express.
 
 | Item | Version |
 |---|---|
-| DSH | **0.2.0-rc.2** (this plugin's development and test baseline) |
+| DSH | **0.2.0-rc.2** (tested on this version) |
 | Electron | 44.0.0 |
 | Node (embedded in host) | 24.18.1 |
 | V8 | 15.2 |
@@ -303,34 +303,6 @@ In your profile's `cordis.patch.yml`:
 If all you want is for the model to know the current time, **use the built-in
 `time-context` first** — it is maintained officially and is more reliable than this
 plugin. This plugin only covers the small corner it does not reach.
-
----
-
-## Development
-
-```
-lib/
-  index.js   # main: event subscriptions, injection decisions, HTTP surface, tool
-  store.js   # persistence: debounced merge-write, atomic replace, record trimming
-  time.js    # time-zone validation, timestamp formatting, duration formatting
-cordis.patch.yml
-```
-
-- Zero runtime dependencies (`node:` builtins only). `createUserMessage` from
-  `@deepseek-ai/dsh-llm` is loaded via a **guarded dynamic import**, falling back to a
-  local equivalent (`deepFreeze` + `randomUUID`) — DSH's package resolution varies by
-  environment, and a failed static import silently skips the whole plugin.
-- Duration and timestamp formats match `time-context` byte-for-byte so both injections
-  can coexist:
-
-```
-lib/time.js     formatDuration(93784000) === '1d 2h 3m 4s'
-lib/time.js     formatTimestamp(now, fmt, 'Asia/Shanghai') === '2026-10-13T09:52:39+08:00[Asia/Shanghai]'
-```
-
-For live edits while developing, pair it with
-[`dsh-hot-reloader`](https://github.com/xfgil/dsh-hot-reloader) to apply changes
-without restarting.
 
 ---
 

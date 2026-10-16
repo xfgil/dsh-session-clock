@@ -146,7 +146,7 @@ DSH 重启后内存里的会话对象是新的，但文件里的间隔基线还�
 
 | 项 | 版本 |
 |---|---|
-| DSH | **0.2.0-rc.2**（本插件的开发与实测版本） |
+| DSH | **0.2.0-rc.2**（实测于该版本） |
 | Electron | 44.0.0 |
 | Node（宿主内嵌） | 24.18.1 |
 | V8 | 15.2 |
@@ -274,32 +274,6 @@ dsh plugin --profile <你的profile> add dsh-session-clock
 
 如果你只是想让模型知道现在几点，**先去用内置的 `time-context`**——
 它由官方维护，比这个插件可靠。本插件解决的是它覆盖不到的那一小块。
-
----
-
-## 开发
-
-```
-lib/
-  index.js   # 主实现：事件订阅、注入决策、HTTP 观测面、工具注册
-  store.js   # 持久化：延迟合并写 + 原子替换 + 条数裁剪
-  time.js    # 时区校验、时间戳格式化、时长格式化
-cordis.patch.yml
-```
-
-- 零运行时依赖（只用 `node:` 内置模块）。对 `@deepseek-ai/dsh-llm` 的
-  `createUserMessage` 走**受控动态 import**，拿不到就退化为本地等价实现
-  （`deepFreeze` + `randomUUID`）——因为 DSH 的包解析路径随环境变化，静态 import
-  失败会让整个插件被静默跳过。
-- 时长与时间戳格式与 `time-context` 逐字对齐，方便两条注入并存：
-
-```
-lib/time.js     formatDuration(93784000) === '1d 2h 3m 4s'
-lib/time.js     formatTimestamp(now, fmt, 'Asia/Shanghai') === '2026-10-13T09:52:39+08:00[Asia/Shanghai]'
-```
-
-本地热改的话，配合 [`dsh-hot-reloader`](https://github.com/xfgil/dsh-hot-reloader)
-可以改完即生效、无需重启。
 
 ---
 
