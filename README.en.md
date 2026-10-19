@@ -196,15 +196,28 @@ $DSH_HOME/session-clock/activity.json     # default; falls back to ~/.dsh when D
 
 ## Install
 
-```bash
-dsh plugin --profile <your-profile> add link:/absolute/path/dsh-session-clock
-```
+**Supported DSH versions: `>=0.2.0-rc.2 <0.3.0-0`** (developed and verified on `0.2.1-rc.2`).
 
-Or from npm/GitHub if published:
+### 1. npm / plugin manager (recommended)
 
 ```bash
 dsh plugin --profile <your-profile> add dsh-session-clock
 ```
+
+### 2. Link from a source checkout
+
+```bash
+git clone https://github.com/xfgil/dsh-session-clock.git
+dsh plugin --profile <your-profile> add link:/absolute/path/dsh-session-clock
+```
+
+Linking means you do not have to reinstall after editing the source.
+
+### 3. Download the Release archive
+
+Grab the source archive from the version's
+[Releases](https://github.com/xfgil/dsh-session-clock/releases) page, extract it
+anywhere, then link it into your profile as shown above.
 
 No restart is **usually** needed: the host's built-in HMR notices the profile manifest
 change and reconciles automatically. Check `/session-clock` — `enabled: true` with

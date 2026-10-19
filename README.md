@@ -180,15 +180,27 @@ $DSH_HOME/session-clock/activity.json     # 默认；DSH_HOME 缺省时退回 ~/
 
 ## 安装
 
-```bash
-dsh plugin --profile <你的profile> add link:/绝对路径/dsh-session-clock
-```
+**支持的 DSH 版本：`>=0.2.0-rc.2 <0.3.0-0`**（开发与验证所用为 `0.2.1-rc.2`）。
 
-或者从 npm/GitHub 装（若已发布）：
+### 1. npm / 插件管理器（推荐）
 
 ```bash
 dsh plugin --profile <你的profile> add dsh-session-clock
 ```
+
+### 2. 从源码挂链接
+
+```bash
+git clone https://github.com/xfgil/dsh-session-clock.git D:\Plugins\dsh-session-clock
+dsh plugin --profile <你的profile> add link:/绝对路径/dsh-session-clock
+```
+
+`link:` 方式的好处是改完源码不用重新安装。
+
+### 3. 下载 Release 附件
+
+在 [Releases](https://github.com/xfgil/dsh-session-clock/releases) 页面下载对应版本的
+源码压缩包，解压到任意目录，再用上面的 `link:` 命令挂进 profile。
 
 装好后**通常无需重启**：宿主内置的 HMR 会监听到 profile 清单变化并自动 reconcile。
 用 `/session-clock` 看状态，`enabled: true` 且 `ready: true` 即为已装载。
