@@ -246,7 +246,8 @@ In your profile's `cordis.patch.yml`:
 | --- | --- | --- |
 | `enabled` | `true` | Master switch |
 | `mode` | `'supplement'` | `supplement` = increments only; `append` = also emit "since previous turn ended"; `full` = reproduce time-context's three lines |
-| `timeZone` | `''` (process zone) | IANA zone; an invalid value disables the plugin and reports it in status |
+| `timeZone` | `''` (process zone) | IANA zone. **If it cannot be detected, Beijing time is used instead of disabling the plugin** (see below) |
+| `fallbackTimeZone` | `'Asia/Shanghai'` | Zone used when `timeZone` is empty and the process zone is UTC/unavailable, or when the value is invalid |
 | `refreshIntervalMs` | `60000` | Minimum ms between injections for one session; `0` disables throttling |
 | `sessions` | `['*']` | Clock allowlist, supports `*` and `/regex/` |
 | `exceptSessions` | `[]` | Session denylist, takes precedence over the allowlist |
@@ -261,6 +262,29 @@ In your profile's `cordis.patch.yml`:
 | `logInjection` | `true` | Log each injection |
 | `traceDecisions` | `false` | Also log every skip (for debugging) |
 | `quiet` | `false` | Silence routine info logs |
+
+---
+
+## Time zone: undetectable means Beijing time
+
+An empty `timeZone` means "use the process zone". But **a process zone of UTC, or one
+that cannot be read at all (containers, servers, an OS installed without a region), is
+no longer treated as valid** — following UTC would drag this instance 8 hours off. An
+IANA name that does not exist is handled the same way: **the plugin never disables
+itself for this**, it falls back to `fallbackTimeZone` (default `Asia/Shanghai`) and
+keeps injecting.
+
+The status endpoint tells you which path was taken:
+
+| `timeZoneSource` | Meaning |
+| --- | --- |
+| `detected` | The process zone (or the one you configured) was used |
+| `fallback` | Nothing was detected, `fallbackTimeZone` is in effect; see `timeZoneError` |
+
+When a message arrives without a browser zone (QQ / gateway channels), the injected
+line now says "none reported — this message did not come from a browser. Use
+Asia/Shanghai as the authoritative zone" instead of **asking the user for their time
+zone** — the timestamp on the line above is already correct.
 
 ---
 

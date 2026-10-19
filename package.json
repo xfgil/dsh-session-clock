@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-clock",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "给指定会话授时，并给出「距上次对话过去多久」：补上宿主 dsh-time-context 只算「距上一条消息」而无法按会话开关的缺口。Per-session clock injection for DeepSeek Harness with durable idle-gap tracking.",
   "keywords": [
     "dsh",

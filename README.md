@@ -227,7 +227,8 @@ dsh plugin --profile <你的profile> add dsh-session-clock
 | --- | --- | --- |
 | `enabled` | `true` | 总开关 |
 | `mode` | `'supplement'` | `supplement` = 只补增量；`append` = 额外给「距上一轮结束多久」；`full` = 复刻 time-context 三行 |
-| `timeZone` | `''`（进程时区） | IANA 时区；非法值会让插件停用并在状态里报错 |
+| `timeZone` | `''`（进程时区） | IANA 时区。**检测不到就按北京时间来，不会停摆**（见下） |
+| `fallbackTimeZone` | `'Asia/Shanghai'` | `timeZone` 为空且进程时区是 UTC/取不到、或配置值非法时落到的时区 |
 | `refreshIntervalMs` | `60000` | 同一会话两次注入的最小间隔（ms）；`0` = 不节流 |
 | `sessions` | `['*']` | 授时会话白名单，支持 `*` 与 `/regex/` |
 | `exceptSessions` | `[]` | 会话黑名单，优先级高于白名单 |
@@ -242,6 +243,26 @@ dsh plugin --profile <你的profile> add dsh-session-clock
 | `logInjection` | `true` | 每次注入写一条宿主日志 |
 | `traceDecisions` | `false` | 每次跳过也写日志（排查用） |
 | `quiet` | `false` | 关闭常规 info 日志 |
+
+---
+
+## 时区：检测不到就是北京时间
+
+`timeZone` 留空表示「用进程时区」。但**进程时区是 UTC 或取不到时（容器、服务器、
+装系统没选区域），不再当成有效时区** —— 跟着 UTC 走会让这个实例系统性偏 8 小时。
+配置值写成不存在的 IANA 名也一样：**都不会让插件停摆**，而是落到
+`fallbackTimeZone`（默认 `Asia/Shanghai`）并照常注入。
+
+状态端点里能看出走的是哪条路：
+
+| `timeZoneSource` | 含义 |
+| --- | --- |
+| `detected` | 用了进程时区（或你显式配置的那个） |
+| `fallback` | 没检测到，落到了 `fallbackTimeZone`；原因在 `timeZoneError` |
+
+浏览器通道没有时区（QQ / 网关来的消息）时，注入行会直接写「none reported — this
+message did not come from a browser. Use Asia/Shanghai as the authoritative zone」，
+**不再让模型去问用户是哪个时区** —— 那一行时间戳本身就是准的。
 
 ---
 
